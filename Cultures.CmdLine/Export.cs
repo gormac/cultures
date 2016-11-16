@@ -20,11 +20,12 @@ namespace Cultures.CmdLine
             if (string.IsNullOrWhiteSpace(Output))
                 Output = ".";
 
-            CultureAndRegionInfoBuilder culture;
             foreach (var cultureName in Culture)
             {
                 var c = CultureInfo.GetCultureInfo(cultureName);
                 var cultureTypes = c.CultureTypes;
+                CultureAndRegionInfoBuilder culture;
+
                 if (cultureTypes.HasFlag(CultureTypes.UserCustomCulture))
                     culture = new CultureAndRegionInfoBuilder(cultureName, CultureAndRegionModifiers.None);
                 else
@@ -41,9 +42,12 @@ namespace Cultures.CmdLine
                 {
                     File.Delete(pathToFile);
                 }
+
                 culture.Save(pathToFile);
+
                 Console.WriteLine($"Exported '{culture.CultureName}' to '{pathToFile}'.");
             }
+
             return 0;
         }
 

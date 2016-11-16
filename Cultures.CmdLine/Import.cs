@@ -10,13 +10,10 @@ namespace Cultures.CmdLine
     [Verb("import", HelpText = "Import culture from file")]
     class Import
     {
-        private Regex _cultureRegex = new Regex(@"(?:\\)?([A-z]{2}-[A-z]{2})", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        private readonly Regex _cultureRegex = new Regex(@"(?:\\)?([A-z]{2}-[A-z]{2})", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         [Option('c', "culture", HelpText = "File to import")]
         public string InputFile { get; set; }
-
-        [Option(HelpText = "Path to files")]
-        public string OutputPath { get; set; }
 
         public int Action()
         {
@@ -43,19 +40,23 @@ namespace Cultures.CmdLine
                         Console.WriteLine($"Cannot import - culture '{cultureName}' already exists.");
                         return 1;
                     }
+
                     // Build and register a temporary culture with the name of what we want to import.
                     // CreateFromLdml method will fail when trying to load a culture from file if it doesn't already exist.
                     var tempCulture = new CultureAndRegionInfoBuilder(cultureName, CultureAndRegionModifiers.None);
                     tempCulture.LoadDataFromCultureInfo(CultureInfo.CurrentCulture);
                     tempCulture.LoadDataFromRegionInfo(RegionInfo.CurrentRegion);
                     tempCulture.Register();
+
                     // Now load up the culture we actually want to import
                     var culture = CultureAndRegionInfoBuilder.CreateFromLdml(filePath);
+
                     // Unregister the temporary culture
                     CultureAndRegionInfoBuilder.Unregister(cultureName);
 
                     // Register the real culture loaded from file
                     culture.Register();
+
                     Console.WriteLine($"Culture '{culture.CultureName}' has been installed.");
                 }
             }
@@ -63,6 +64,7 @@ namespace Cultures.CmdLine
             {
                 Console.Write(e.Message);
             }
+
             return 0;
         }
     }
